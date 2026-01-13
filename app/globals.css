@@ -1,0 +1,176 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Updated color scheme for medical B2B marketplace */
+:root {
+  /* Primary Blue - Medical Professional */
+  --primary-blue: 214 100% 50%; /* #1A73E8 */
+  --primary-blue-dark: 214 100% 40%;
+
+  /* Adding teal as a primary accent color throughout */
+  --teal-accent: 0.696 0.17 162.48; /* oklch teal color */
+  --teal-light: 0.85 0.12 162.48;
+  --teal-dark: 0.55 0.2 162.48;
+
+  /* Secondary - Dark Slate */
+  --secondary-dark: 222 47% 11%; /* #0F172A */
+
+  /* Accent Green - Success/Health */
+  --accent-green: 152 69% 52%; /* #34D399 */
+
+  /* Accent Amber - Warning/Alerts */
+  --accent-amber: 43 96% 57%; /* #FBBF24 */
+
+  /* Neutral Background */
+  --neutral-bg: 210 40% 98%; /* #F8FAFC */
+  --neutral-50: 210 40% 96%;
+  --neutral-100: 214 32% 91%;
+  --neutral-200: 213 27% 84%;
+  --neutral-300: 212 23% 69%;
+  --neutral-400: 213 20% 53%;
+  --neutral-500: 214 14% 41%;
+  --neutral-600: 215 20% 31%;
+  --neutral-700: 215 25% 24%;
+  --neutral-800: 217 33% 17%;
+  --neutral-900: 222 47% 11%;
+
+  --background: 210 40% 98%;
+  --foreground: var(--secondary-dark);
+
+  --card: 0 0% 100%;
+  --card-foreground: var(--secondary-dark);
+
+  --popover: 0 0% 100%;
+  --popover-foreground: var(--secondary-dark);
+
+  --primary: var(--primary-blue);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--secondary-dark);
+
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--neutral-500);
+
+  --accent: var(--accent-green);
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: var(--neutral-200);
+  --input: var(--neutral-200);
+  --ring: var(--primary-blue);
+
+  --chart-1: var(--primary-blue);
+  --chart-2: var(--accent-green);
+  --chart-3: var(--accent-amber);
+  --chart-4: 280 80% 60%;
+  --chart-5: 340 75% 55%;
+
+  --radius: 0.5rem;
+
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: var(--secondary-dark);
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: var(--neutral-50);
+  --sidebar-accent-foreground: var(--secondary-dark);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--primary-blue);
+}
+
+.dark {
+  --background: var(--secondary-dark);
+  --foreground: var(--neutral-50);
+
+  --card: var(--neutral-900);
+  --card-foreground: var(--neutral-50);
+
+  --popover: var(--neutral-900);
+  --popover-foreground: var(--neutral-50);
+
+  --primary: var(--primary-blue);
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: var(--neutral-800);
+  --secondary-foreground: var(--neutral-50);
+
+  --muted: var(--neutral-800);
+  --muted-foreground: var(--neutral-400);
+
+  --accent: var(--accent-green);
+  --accent-foreground: var(--secondary-dark);
+
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 0 86% 90%;
+
+  --border: var(--neutral-800);
+  --input: var(--neutral-800);
+  --ring: var(--primary-blue-dark);
+
+  --sidebar: var(--neutral-900);
+  --sidebar-foreground: var(--neutral-50);
+  --sidebar-primary: var(--primary-blue);
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: var(--neutral-800);
+  --sidebar-accent-foreground: var(--neutral-50);
+  --sidebar-border: var(--neutral-800);
+  --sidebar-ring: var(--primary-blue-dark);
+}
+
+@theme inline {
+  --font-sans: "Geist", "Geist Fallback";
+  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  /* Adding teal color tokens to theme */
+  --color-teal: oklch(var(--teal-accent));
+  --color-teal-light: oklch(var(--teal-light));
+  --color-teal-dark: oklch(var(--teal-dark));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
