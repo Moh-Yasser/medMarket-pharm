@@ -51,8 +51,8 @@
   --secondary: var(--neutral-100);
   --secondary-foreground: var(--secondary-dark);
 
-  --muted: var(--neutral-100);
-  --muted-foreground: var(--neutral-500);
+  --muted: 0 0% 96%; /* Pure neutral gray background */
+  --muted-foreground: 0 0% 45%; /* Pure neutral gray text */
 
   --accent: var(--accent-green);
   --accent-foreground: 0 0% 100%;
@@ -98,8 +98,8 @@
   --secondary: var(--neutral-800);
   --secondary-foreground: var(--neutral-50);
 
-  --muted: var(--neutral-800);
-  --muted-foreground: var(--neutral-400);
+  --muted: 0 0% 18%; /* Pure neutral gray background for dark mode */
+  --muted-foreground: 0 0% 65%; /* Pure neutral gray text for dark mode */
 
   --accent: var(--accent-green);
   --accent-foreground: var(--secondary-dark);
@@ -122,8 +122,8 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  --font-sans: "Noto Sans Arabic", "Noto Sans Arabic Fallback", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -170,6 +170,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+ 
   body {
     @apply bg-background text-foreground;
   }

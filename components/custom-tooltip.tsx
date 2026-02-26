@@ -1,4 +1,4 @@
-import { formatSYP } from "@/lib/format"; // adjust path
+import { formatSYP } from "@/lib/utils"; // adjust path
 
 export const CustomTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null;
