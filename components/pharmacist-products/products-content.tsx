@@ -2,17 +2,20 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { ProductSearch } from "./products-search";
-import type { Product } from "@/types/products";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { ProductsSearch } from "./products-search";
+import { ProductsApiResponse, type Product } from "@/types/products";
 import type { CartApiResponse, CartItem } from "@/types/orders_cart";
-import { DataTable } from "@/components/table/Data-table";
-import { createProductsColumns } from "./products-columns";
 import { PRODUCTS_KEYS } from "@/lib/products/products-keys";
 import { getProducts } from "@/lib/products/products.client";
 import { getCart } from "@/lib/cart/cart.client";
 import { CART_KEYS } from "@/lib/cart/cart-keys";
-import { ProductsFilters } from "@/types/filters";
+import { Category, Manufacturer, ProductsFilters } from "@/types/filters";
+import { ProductsList } from "./products-list";
+import { CATEGORIES_KEYS } from "@/lib/categories/categories-keys";
+import { getAllCategories } from "@/lib/categories/categories.client";
+import { MANUFACTURERS_KEYS } from "@/lib/manufacturers/manufacturers-keys";
+import { getAllManufacturers } from "@/lib/manufacturers/manufacturers.client";
 
 export function useProductsFiltersFromURL(): ProductsFilters {
   const searchParams = useSearchParams();
@@ -22,16 +25,16 @@ export function useProductsFiltersFromURL(): ProductsFilters {
       search: searchParams.get("search") || undefined,
       category_id: searchParams.get("category_id") || undefined,
       manufacturer_id: searchParams.get("manufacturer_id") || undefined,
-      supplier_company_id:
-        searchParams.get("supplier_company_id") || undefined,
+      supplier_company_id: searchParams.get("supplier_company_id") || undefined,
       page: parseInt(searchParams.get("page") || "1", 10),
       per_page: parseInt(searchParams.get("per_page") || "15", 10),
     };
   }, [searchParams]);
 }
 
-/** Build a lookup map: product id -> CartItem from the cart response */
-export function buildCartMap(cartResponse: CartApiResponse | undefined): Map<number, CartItem> {
+export function buildCartMap(
+  cartResponse: CartApiResponse | undefined,
+): Map<number, CartItem> {
   const map = new Map<number, CartItem>();
   if (!cartResponse?.data?.itemsBySupplier) return map;
   for (const group of cartResponse.data.itemsBySupplier) {
@@ -45,21 +48,67 @@ export function buildCartMap(cartResponse: CartApiResponse | undefined): Map<num
 export function ProductsContent() {
   const filters = useProductsFiltersFromURL();
 
-  const queryKey = useMemo(() => PRODUCTS_KEYS.list(filters), [filters]);
-  const queryFn = useMemo(() => () => getProducts(filters), [filters]);
+ const hasActiveFilters =
+    filters.search !== "" ||
+    filters.category_id !== "all" ||
+    filters.manufacturer_id !== "all" ||
+    filters.supplier_company_id !== "all";
 
-  // Fetch cart once so we can show quantity controls for items already in cart
+     
+
+
+  const {
+    data: fetchedProducts,
+    hasNextPage,
+    fetchNextPage,
+    refetch,
+    isFetching,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    status,
+  } = useInfiniteQuery<ProductsApiResponse>({
+    queryKey: PRODUCTS_KEYS.list(filters),
+    queryFn: ({ pageParam }) =>
+      getProducts({ ...filters, page: pageParam as number }),
+    initialPageParam: filters.page ?? 1,
+    getNextPageParam: (lastPage) => {
+      const { currentPage, lastPage: totalPages } = lastPage.pagination;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+  });
+
   const { data: cartData } = useQuery<CartApiResponse>({
     queryKey: CART_KEYS.all,
     queryFn: getCart,
   });
 
-  const cartByProductId = useMemo(() => buildCartMap(cartData), [cartData]);
+    const { data: categoriesData } = useQuery({
+    queryKey: CATEGORIES_KEYS.all,
+    queryFn: getAllManufacturers,
+  });
 
-  const columns = useMemo(
-    () => createProductsColumns(cartByProductId),
-    [cartByProductId]
+const categories=categoriesData?.data ?? [] as Category[];
+
+  const { data: manufacturersData } = useQuery({
+    queryKey: MANUFACTURERS_KEYS.all,
+    queryFn: getAllCategories,
+  });
+
+  const manufacturers=manufacturersData?.data ?? [] as Manufacturer[];
+
+  const cartsItemsByProductId = useMemo(
+    () => buildCartMap(cartData),
+    [cartData],
   );
+
+  const products =
+    fetchedProducts?.pages.flatMap((page) => page.data) ?? ([] as Product[]);
+
+  const hasFatalError = status === "error" && !fetchedProducts;
+
+  const handleRetry = () => {
+    void (isFetchNextPageError ? fetchNextPage() : refetch());
+  };
 
   return (
     <div className="space-y-6 px-4 lg:px-16 sm:px-12  mx-auto">
@@ -74,12 +123,23 @@ export function ProductsContent() {
       </div>
 
       {/* Search and Filters */}
-      <ProductSearch />
+      <ProductsSearch
+       manufacturers={manufacturers}
+      categories={categories}
+      />
 
-      {/* Products Table with Pagination */}
-      <div className="rounded-lg border bg-card">
-        <DataTable<Product> queryKey={queryKey} queryFn={queryFn} columns={columns} />
-      </div>
+      <ProductsList
+     hasFilters={ hasActiveFilters}
+        products={products}
+        cartsItemsByProductId={cartsItemsByProductId}
+        status={status}
+        isFetching={isFetching}
+        isFetchingNextPage={isFetchingNextPage}
+        hasNextPage={hasNextPage}
+        hasFatalError={hasFatalError}
+        fetchNextPage={fetchNextPage}
+        onRetry={handleRetry}
+      />
     </div>
   );
 }

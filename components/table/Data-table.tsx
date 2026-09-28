@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { skipToken, useQuery } from "@tanstack/react-query";
-import { useRouter, usePathname } from "next/navigation";
-import type { ApiResponse, PaginationType } from "@/types/api-response";
 import { Pagination } from "./pagination";
+import type { ApiResponse, PaginationType } from "@/types/api-response";
 
 export interface Column<T> {
   key: string;
@@ -17,14 +16,14 @@ export interface Column<T> {
   render?: (item: T) => React.ReactNode;
 }
 
-type BaseTableProps<T extends { id:  number }> = {
+type BaseTableProps<T extends { id: number }> = {
   columns: Column<T>[];
   onRowClick?: (item: T) => void;
   emptyMessage?: string;
   filterKeys?: string[];
   onClearFilters?: () => void;
   hasActiveFilters?: boolean;
-  ActivatePagination?:boolean;
+  ActivatePagination?: boolean;
 };
 
 type FetchTableProps<T> = {
@@ -39,11 +38,26 @@ type DirectTableProps<T> = {
   queryFn?: never;
 };
 
-type DataTableProps<T extends { id: number }> =
-  BaseTableProps<T> & (FetchTableProps<T> | DirectTableProps<T>);
+// 💎 New: Table design system options
+type TableVariant = "default" | "modern" | "minimal";
+type TableDensity = "compact" | "comfortable" | "spacious";
 
-function isFetchMode<T extends { id:  number }>(
-  props: DataTableProps<T>,
+type TableStyleProps = {
+  variant?: TableVariant;
+  density?: TableDensity;
+  striped?: boolean;
+  hoverable?: boolean;
+  clickableRows?: boolean;
+};
+
+export type DataTableProps<T extends { id: number }> =
+  BaseTableProps<T> &
+  TableStyleProps &
+  (FetchTableProps<T> | DirectTableProps<T>);
+
+// Type guard for fetch mode
+function isFetchMode<T extends { id: number }>(
+  props: DataTableProps<T>
 ): props is BaseTableProps<T> & FetchTableProps<T> {
   return (
     (props as Partial<FetchTableProps<T>>).queryKey !== undefined &&
@@ -51,7 +65,7 @@ function isFetchMode<T extends { id:  number }>(
   );
 }
 
-export function DataTable<T extends { id:  number }>(props: DataTableProps<T>) {
+export function DataTable<T extends { id: number }>(props: DataTableProps<T>) {
   const {
     columns,
     onRowClick,
@@ -59,128 +73,157 @@ export function DataTable<T extends { id:  number }>(props: DataTableProps<T>) {
     onClearFilters,
     hasActiveFilters = false,
     ActivatePagination = true,
+    variant = "modern",
+    density = "comfortable",
+    striped = false,
+    hoverable = true,
+    clickableRows = false,
   } = props;
 
   const fetchMode = isFetchMode(props);
 
-  // Always call the hook; only enable it in fetch mode.
+  // Fetch data if fetchMode
   const { data: fetchedData, isLoading, isFetching } = useQuery<ApiResponse<T>>({
     queryKey: fetchMode ? props.queryKey : ["datatable", "direct"],
     queryFn: fetchMode ? props.queryFn : skipToken,
     enabled: fetchMode,
   });
 
+  const items: T[] = fetchMode ? (fetchedData?.data ?? []) : props.data;
+
   const defaultPagination: PaginationType = {
-    current_page: 1,
-    per_page: 15,
+    currentPage: 1,
+    perPage: 15,
     total: 0,
-    last_page: 1,
+    lastPage: 1,
     from: 0,
     to: 0,
   };
 
-  const items: T[] = fetchMode ? (fetchedData?.data ?? []) : props.data;
-
   const pagination: PaginationType = fetchMode
     ? (fetchedData?.pagination ?? defaultPagination)
     : {
-        current_page: 1,
-        per_page: props.data.length,
+        currentPage: 1,
+        perPage: props.data.length,
         total: props.data.length,
-        last_page: 1,
+        lastPage: 1,
         from: props.data.length ? 1 : 0,
         to: props.data.length,
       };
 
-  // Default clear filters handler
-    
+  // Density styles
+  const densityStyles = {
+    compact: "py-2 px-3 text-xs",
+    comfortable: "py-4 px-5 text-sm",
+    spacious: "py-5 px-6 text-base",
+  };
+
+  // Variant styles
+  const variantStyles = {
+    default: {
+      table: "border border-border rounded-lg",
+      header: "bg-muted/50",
+      row: "border-b",
+    },
+    modern: {
+      table: "bg-white rounded-2xl shadow-sm overflow-hidden",
+      header: "bg-slate-50/80 text-slate-600",
+      row: "border-b border-slate-100",
+    },
+    minimal: {
+      table: "",
+      header: "text-muted-foreground",
+      row: "",
+    },
+  };
+
   return (
     <div>
-    <Table>
-      <TableHeader>
-        <TableRow className="hover:bg-transparent ">
-          {columns.map((column) => (
-            <TableHead
-              key={column.key}
-              className={cn(
-                "text-sm font-medium",
-                "text-center",
-                column.className,
-              )}
-            >
-              {column.label}
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {/* Loading State */}
-        {(isLoading || isFetching) ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <TableRow key={i}>
-              {columns.map((column) => (
-                <TableCell key={column.key}>
-                  <div className="h-4 w-full animate-pulse rounded bg-muted" />
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
-        ) : items.length === 0 ? (
-          /* Empty State */
-          <TableRow>
-            <TableCell
-              colSpan={columns.length}
-              className="h-32 text-center text-muted-foreground"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <Search className="h-8 w-8 text-muted-foreground/50" />
-                <p className="text-muted-foreground">
-                  {hasActiveFilters
-                    ? "لم يتم العثور على نتائج تطابق الفلاتر المحددة"
-                    : emptyMessage}
-                </p>
-                {hasActiveFilters && (
-                  <Button
-                    variant="link"
-                    onClick={onClearFilters}
-                    className="text-primary"
-                  >
-                    مسح عوامل التصفية
-                  </Button>
+      <Table className={cn(variantStyles[variant].table)}>
+        <TableHeader className={variantStyles[variant].header}>
+          <TableRow className="hover:bg-transparent">
+            {columns.map((column) => (
+              <TableHead
+                key={column.key}
+                className={cn(
+                  "text-center font-medium",
+                  densityStyles[density],
+                  column.className
                 )}
-              </div>
-            </TableCell>
+              >
+                {column.label}
+              </TableHead>
+            ))}
           </TableRow>
-        ) : (
-          /* Data List */
-          items.map((item) => (
-            <TableRow
-              key={item.id}
-              onClick={onRowClick ? () => onRowClick(item) : undefined}
-              className={cn(onRowClick && "cursor-pointer")}
-            >
-              {columns.map((column) => (
-                <TableCell
-                  key={column.key}
-                  className={cn(
-                    "text-sm",
-                    "text-center",
-                    column.className,
+        </TableHeader>
+        <TableBody>
+          {(isLoading || isFetching) ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i}>
+                {columns.map((column) => (
+                  <TableCell key={column.key} className={cn(densityStyles[density])}>
+                    <div className="h-4 w-full animate-pulse rounded-md bg-slate-200" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : items.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground">
+                <div className="flex flex-col items-center justify-center gap-3 py-10">
+                  <div className="rounded-full bg-slate-100 p-4">
+                    <Search className="h-6 w-6 text-slate-400" />
+                  </div>
+                  <p className="text-sm text-slate-500">
+                    {hasActiveFilters
+                      ? "لا توجد نتائج مطابقة للفلاتر"
+                      : emptyMessage}
+                  </p>
+                  {hasActiveFilters && (
+                    <Button variant="outline" size="sm" onClick={onClearFilters}>
+                      مسح الفلاتر
+                    </Button>
                   )}
-                >
-                  {column.render
-                    ? column.render(item)
-                    : String(
-                        (item as Record<string, unknown>)[column.key] ?? "N/A"
-                      )}
-                </TableCell>
-              ))}
+                </div>
+              </TableCell>
             </TableRow>
-          ))
-        )}
-      </TableBody>
-    </Table>
-  { ActivatePagination && <Pagination pagination={pagination} isLoading={isLoading || isFetching} />}
+          ) : (
+            items.map((item, rowIndex) => (
+              <TableRow
+                key={item.id}
+                onClick={onRowClick ? () => onRowClick(item) : undefined}
+                className={cn(
+                  variantStyles[variant].row,
+                  hoverable && "transition-colors hover:bg-slate-50",
+                  striped && rowIndex % 2 === 0 && "bg-slate-50/50",
+                  (onRowClick || clickableRows) && "cursor-pointer"
+                )}
+              >
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.key}
+                    className={cn(
+                      "text-center text-slate-700",
+                      densityStyles[density],
+                      column.className
+                    )}
+                  >
+                    {column.render
+                      ? column.render(item)
+                      : String((item as Record<string, unknown>)[column.key] ?? "N/A")}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+
+      {ActivatePagination && (
+        <div className="mt-6">
+          <Pagination pagination={pagination} isLoading={isLoading || isFetching} />
+        </div>
+      )}
     </div>
   );
 }

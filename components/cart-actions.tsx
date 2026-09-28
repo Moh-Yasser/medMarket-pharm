@@ -198,7 +198,7 @@ export function CartActions({ product }: { product: CartItem | Product }) {
         type="button"
         size="sm"
         disabled={stock === 0 || addMutation.isPending}
-        className="gap-1.5"
+        className="gap-1.5 hover:cursor-pointer"
         onClick={() => addMutation.mutate(1)}
       >
         <ShoppingCart className="h-4 w-4" />
@@ -209,15 +209,17 @@ export function CartActions({ product }: { product: CartItem | Product }) {
 
   /* ── In cart → quantity controls ── */
   return (
-    <div className="flex items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2 ">
       <div className="flex items-center rounded-lg border border-border">
         <Button
           type="button"
           variant="outline"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 "
           
-          onClick={() => {
+          onClick={(event) => {
+              event.preventDefault();
+        event.stopPropagation();
             const next = Math.max(0, Math.min(getDraftBase() - 1, stock));
             setDraftQty(String(next));
           }}

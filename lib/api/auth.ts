@@ -35,7 +35,7 @@ export async function loginAction(
 
     const loginData = data as LoginApiResponse;
 
-    // Set the access token cookie
+    
     const cookieStore = await cookies();
     cookieStore.set("access_token", loginData.data.token, {
       httpOnly: true,

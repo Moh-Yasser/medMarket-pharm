@@ -1,29 +1,28 @@
-import { DataTable } from "@/components/table/Data-table";
-import CartColumns from "./cart-columns";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { PriceCode } from "../pharmacist-products/product-price";
-import { Trash2, ShoppingBag, Package, ArrowLeft } from "lucide-react";
-import { CartItem, ItemBySupplier } from "@/types/orders_cart";
+import { Trash2, ShoppingBag, Package, ArrowLeft, Loader2 } from "lucide-react";
+import type { ItemBySupplier } from "@/types/orders_cart";
 import { cn } from "@/lib/utils";
+import { ProductPurchaseCardList } from "../pharmacist-purchase/products-purchase-card-list";
 
 
 interface CartDetailsProps {
-  groupData:ItemBySupplier, 
-  handleSubmitOrder:()=>void,
-  orderError:string | null,
-  isLoading:boolean
+  groupData: ItemBySupplier,
+  handleSubmitOrder: () => void,
+  orderError: string | null,
+  isLoading: boolean
 }
 
-export default function CartDetails({ groupData,handleSubmitOrder,orderError,isLoading }: CartDetailsProps) {
+export default function CartDetails({ groupData, handleSubmitOrder, orderError, isLoading }: CartDetailsProps) {
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row-reverse lg:items-start">
+    <div className="flex flex-col gap-6 ">
 
-      {/* ── Order Summary Card ── */}
-      <div className="w-full lg:max-w-sm">
+      <div className="w-full">
         <div className="sticky top-20 overflow-hidden rounded-2xl border bg-card shadow-sm">
 
-          {/* Gradient header */}
           <div className="relative bg-linear-to-l from-primary/10 via-primary/5 to-transparent px-5 py-4">
             <div className="absolute left-0 top-0 h-20 w-20 -translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/5" />
             <div className="relative flex items-center justify-between">
@@ -46,10 +45,8 @@ export default function CartDetails({ groupData,handleSubmitOrder,orderError,isL
             </div>
           </div>
 
-          {/* Summary details */}
           <div className="space-y-4 p-5">
             <div className="space-y-3">
-              {/* Item count */}
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Package className="h-3.5 w-3.5" />
@@ -60,7 +57,6 @@ export default function CartDetails({ groupData,handleSubmitOrder,orderError,isL
                 </span>
               </div>
 
-              {/* Subtotal */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">المجموع الفرعي</span>
                 <span className="text-sm font-medium tabular-nums">
@@ -68,17 +64,14 @@ export default function CartDetails({ groupData,handleSubmitOrder,orderError,isL
                 </span>
               </div>
 
-              {/* Discount */}
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">الخصم</span>
                 <span className="text-sm text-muted-foreground italic">لا يوجد خصم</span>
               </div>
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-border" />
 
-            {/* Total */}
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">الإجمالي</span>
               <span className="text-xl font-bold tabular-nums text-primary">
@@ -86,7 +79,6 @@ export default function CartDetails({ groupData,handleSubmitOrder,orderError,isL
               </span>
             </div>
 
-            {/* Checkout button */}
             <Button
               size="lg"
               onClick={handleSubmitOrder}
@@ -97,20 +89,28 @@ export default function CartDetails({ groupData,handleSubmitOrder,orderError,isL
                 "transition-all duration-200 hover:shadow-lg hover:shadow-primary/25"
               )}
             >
-              تأكيد الطلب
-              <ArrowLeft className="h-4 w-4" />
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جارٍ تأكيد الطلب...
+                </>
+              ) : (
+                <>
+                  تأكيد الطلب
+                  <ArrowLeft className="h-4 w-4" />
+                </>
+              )}
             </Button>
             {orderError && <p className="text-sm text-destructive">{orderError}</p>}
           </div>
         </div>
       </div>
 
-      {/* ── Items Table ── */}
-      <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border bg-card shadow-sm">
-        <DataTable<CartItem>
-          columns={CartColumns}
-          data={groupData.items}
-          ActivatePagination={false}
+      <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border bg-card p-5 shadow-sm">
+        <ProductPurchaseCardList
+          variant="cart"
+          items={groupData.items}
+          emptyMessage="السلة فارغة"
         />
       </div>
     </div>

@@ -19,9 +19,7 @@ export default async function ProductsPage({
   const filters: SuppliersFilters = {
     search: typeof params.search === "string" ? params.search : undefined,
     category_id: typeof params.category_id === "string" ? params.category_id : undefined,
-    manufacturer_id:
-      typeof params.manufacturer_id === "string" ? params.manufacturer_id : undefined,
-    
+    manufacturer_id: typeof params.manufacturer_id === "string" ? params.manufacturer_id : undefined, 
   };
 
   const queryClient = new QueryClient();
@@ -38,6 +36,7 @@ export default async function ProductsPage({
     queryKey: SUPPLIERS_KEYS.list(filters),
     queryFn: () => getAllSuppliers(filters),
   });
+  
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <SuppliersContent />

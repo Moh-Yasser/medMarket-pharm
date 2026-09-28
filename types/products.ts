@@ -1,6 +1,6 @@
 import { Company } from "./company";
 import {  ProductOffer } from "./Offer";
-import { ApiResponse } from "./api-response";
+import { ApiResponse, PaginationType } from "./api-response";
 export interface category{
     id:number,
     name:string,
@@ -46,6 +46,13 @@ export interface Product {
     createdAt: Date;
     supplierCompany: Company;
     offers:ProductOffer[];
+}
+
+export type ProductApiResponse= {
+  success: boolean;
+  data: Product;
+  pagination: PaginationType;
+  message: string;
 }
 
 export type ProductsApiResponse = ApiResponse<Product>;

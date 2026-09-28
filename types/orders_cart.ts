@@ -6,7 +6,7 @@ import { Product } from "./products";
 
 export type OrdersApiResponse = ApiResponse<Order>;
 
-export type OrderStatus = "prepared" | "pending" | "accepting" | "shipped" | "delivered" | "cancelled";
+export type OrderStatus =  "prepared" |"pending" | "accepted" | "shipped" | "delivered" | "cancelled";
 
 export type CartApiResponse={
   success: boolean;
@@ -24,6 +24,7 @@ export interface Cart{
 }
 
 
+export type CatalogProduct = Product & { offers?: ProductOffer[] };
 
 export interface Order {
   id: number;
@@ -66,11 +67,36 @@ export interface CartItem {
 
 export interface OrdersFilters {
   supplier?: string;
-  buyer?: string;
   status?: OrderStatus | "all";
-  date_from?: string;
-  date_to?: string;
+  from_date?: string;
+  to_date?: string;
+  page:number;
 }
 
+export type DriverStatus = "available" | "On delivery" | "Off";
 
 
+export type Driver = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  role: "driver";
+  company: Company;
+  workStartTime: Date;
+  workEndTime: Date;
+  employmentStartDate: Date;
+  employmentEndDate: Date;
+  driverStatus: DriverStatus;
+  deliveredOrderCount: number;
+  totalOrderCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export interface OrderDetailResponse {
+  success: boolean;
+  data: Order & {
+    driver?: Driver | null;
+  };
+} 

@@ -11,13 +11,14 @@ import { CART_KEYS } from "@/lib/cart/cart-keys";
 import { checkoutCart, getCart } from "@/lib/cart/cart.client";
 import { Cart, CartApiResponse } from "@/types/orders_cart";
 import { useQueryClient } from "@tanstack/react-query";
+import { PageLoader } from "@/components/page-loader";
 
 export function CartContent() {
   const [activeGroup, setActiveGroup] = useState(0);
   const queryClient = useQueryClient();
   const [orderSubmitted, setOrderSubmitted] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-  const { data: fetchedData } = useQuery<CartApiResponse>({
+  const { data: fetchedData, isLoading: isCartLoading } = useQuery<CartApiResponse>({
     queryKey: CART_KEYS.all,
     queryFn: getCart,
   });
@@ -65,7 +66,11 @@ export function CartContent() {
         </div>
       )
     }
-  /* ── Empty cart ── */
+
+  if (isCartLoading) {
+    return <PageLoader label="جارٍ تحميل السلة..." />;
+  }
+
   if (itemsBySupplier.length==0) {
     return (
       <div className="flex flex-col items-center justify-center py-24">
@@ -86,10 +91,8 @@ export function CartContent() {
     );
   }
 
-  /* ── Cart with items ── */
   return (
     <div className="space-y-6 lg:px-16 sm:px-6 px-4 py-4 mx-auto">
-      {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">سلة التسوق</h1>
@@ -101,14 +104,12 @@ export function CartContent() {
         </div>
       </div>
 
-      {/* Supplier tabs */}
       <SupplierTabs
         activeGroup={safeIndex}
         onSelect={setActiveGroup}
         CartItems={itemsBySupplier}
       />
 
-      {/* Cart details for selected supplier */}
       <CartDetails groupData={itemsBySupplier[safeIndex]} handleSubmitOrder={handleSubmitOrder} orderError={orderError} isLoading={checkoutMutation.isPending}/>
     </div>
   );

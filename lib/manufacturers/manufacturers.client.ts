@@ -10,14 +10,6 @@ export async function getAllManufacturers(): Promise<ManufacturersApiResponse> {
       await AxiosApi.get<ManufacturersApiResponse>(MANUFACTURERS_ROUTE);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Request failed";
-      throw new Error(message);
-    }
-    throw error;
+  handleAxiosError(error);
   }
 }

@@ -1,5 +1,4 @@
-import axios from "axios";
-import { AxiosApi } from "@/lib/api/nextBff.client";
+import { AxiosApi, handleAxiosError } from "@/lib/api/nextBff.client";
 import { createQueryString } from "@/lib/api/queryString";
 import type { ProductsApiResponse } from "@/types/products";
 import type { ProductsFilters } from "@/types/filters";
@@ -17,17 +16,19 @@ export async function getProducts(
     const response = await AxiosApi.get<ProductsApiResponse>(url);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Request failed";
-      throw new Error(message);
-    }
-    throw error;
+  handleAxiosError(error);
   }
 }
+
+export async function fetchProductDetail(id: number | string) {
+  try {
+    const { data } = await AxiosApi.get(`/api/pharmacist/products/${id}`);
+    return data;
+  } catch (error) {
+  handleAxiosError(error);
+  }
+}
+
 
 export async function getSupplierProducts(
   supplierId: string,
@@ -40,14 +41,6 @@ export async function getSupplierProducts(
     const response = await AxiosApi.get<ProductsApiResponse>(url);
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        error.message ||
-        "Request failed";
-      throw new Error(message);
-    }
-    throw error;
+  handleAxiosError(error);
   }
 }

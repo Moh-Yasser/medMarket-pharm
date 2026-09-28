@@ -14,21 +14,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SuppliersLoading() {
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="space-y-4">
-        <Skeleton className="h-7 w-28" />
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-          <Skeleton className="h-9 flex-1 max-w-md rounded-md" />
-          <Skeleton className="h-9 w-full sm:w-[180px] rounded-md" />
-          <Skeleton className="h-8 w-20 rounded-lg" />
-        </div>
-      </div>
-
+    
       <div className="mt-6 grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {Array.from({ length: 10 }).map((_, i) => (
           <CardSkeleton key={i} />
         ))}
       </div>
-    </div>
+  
   );
 }

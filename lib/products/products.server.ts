@@ -1,10 +1,8 @@
 import { createQueryString } from "@/lib/api/queryString";
 import { phpFetch } from "@/lib/api/php.server";
-import type {  ApiResponse } from "@/types/api-response";
-import type { Product } from "@/types/products";
+import type {  ProductsApiResponse } from "@/types/products";
 import type { ProductsFilters } from "@/types/filters";
 
-export type ProductsApiResponse = ApiResponse<Product>;
 
 const PRODUCTS_PATH = "/products";
 

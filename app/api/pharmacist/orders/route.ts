@@ -9,8 +9,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const queryString = request.nextUrl.searchParams.toString()
-    const phpPath = `/orders${queryString ? `?${queryString}` : ""}`
-    const data = await phpFetch<OrdersApiResponse>(phpPath, { method: "GET" })
+    const backendPath = `/orders${queryString ? `?${queryString}` : ""}`
+    const data = await phpFetch<OrdersApiResponse>(backendPath, { method: "GET" })
     return NextResponse.json(data)
   } catch (error) {
     return safeErrorResponse(error)

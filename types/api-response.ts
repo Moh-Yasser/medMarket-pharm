@@ -1,8 +1,8 @@
 export interface PaginationType{
-  current_page: number;
-  per_page: number;
+  currentPage: number;
+  perPage: number;
   total: number;
-  last_page: number;
+  lastPage: number;
   from: number | null;
   to: number | null;
 }

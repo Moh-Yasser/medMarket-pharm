@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { phpFetch } from "@/lib/api/php.server"
-import { requireAuth, safeErrorResponse } from "@/lib/api/auth-guard"
 import type { CartApiResponse } from "@/types/orders_cart"
+import { requireAuth, safeErrorResponse } from "@/lib/api/auth-guard"
 
 export async function GET(request: NextRequest) {
   const denied = await requireAuth(request)
